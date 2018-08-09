@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+
+  <meta charset="utf-8">
+  <title>Animal Giphy</title>
+  <style type="text/css">
+    button,
+    div,
+    form,
+    input {
+      margin: 10px;
+    }
+
+    #buttons-view {
+        color: blue;
+    }
+    
+    .animal {
+        background-color: rgb(8, 144, 249);
+    }
+    #add-animal {
+    background-color: rgb(8, 144, 249);
+    }
+
+  #animal-image {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 20px;
+  }
+
+  #main-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-gap: 20px;
+    }
+
+  img {
+  width: 100%;
+
+  }
+  
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+      <div class="row">
+    <!-- <h1>Animal Hunt</h1> -->
+</div> 
+    
+    <div id="animal-view"></div>
+
+    
+    <div id="buttons-view"></div>
+
+    <div id="main-container">
+      <div id="animal-image"></div>
+
+      <form id="animal-form">
+        <label for="animal-input">Go Hunting!</label>
+        <input type="text" id="animal-input"><br>
+
+        
+        <input id="add-animal" type="submit" value="Submit!">
+      </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+      
+      var animals = ["Dog", "Cat", "Bird", "Hamster"];
+
+      
+      function displayAnimalInfo() {
+
+        var animal = $(this).attr("data-name");
+        var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + animal + "&api_key=dc6zaTOxFJmzC&limit=10";
+
+        $("#animal-image").empty();
+        $.ajax({
+          url: queryURL,
+          method: "GET"
+        }).then(function(response) {
+          for (var i=0;i<response.data.length;i++) {
+              console.log(response.data[i].images.original_still.url)
+              var imageUrl = response.data[i].images.original_still.url
+              var imageUrlAnimated = response.data[i].images.original.url
+              var animalImage = $("<img>");
+
+              animalImage.attr("src", imageUrl);
+              animalImage.attr("still", imageUrl);
+              animalImage.attr("animated", imageUrlAnimated);
+              animalImage.attr("state", "still");
+              animalImage.attr("alt", "animal image");
+              animalImage.addClass("giphy-images")
+
+              $("#animal-image").prepend(animalImage);
+          }
+          console.log(response);
+        });
+      }
+
+      function renderButtons() {
+        $("#buttons-view").empty();
+        for (var i = 0; i < animals.length; i++) {
+
+          var a = $("<button>");
+          a.addClass("animal");
+          a.attr("data-name", animals[i]);
+          a.text(animals[i]);
+          $("#buttons-view").append(a);
+        }
+      }
+
+      $("#add-animal").on("click", function(event) {
+        event.preventDefault();
+
+        var animal = $("#animal-input").val().trim();
+
+        animals.push(animal);
+        console.log(animals);
+
+        renderButtons();
+      });
+
+      $(document).on("click", ".giphy-images", function(event) {
+        var state = $(this).attr("state")
+        var animated = $(this).attr("animated")
+        var still = $(this).attr("still")
+          console.log(state)
+          if(state=="still"){
+            console.log("works")
+            $(this).attr("src", animated)
+            $(this).attr("state", "animated")
+          }
+          else if(state=="animated"){
+            $(this).attr("src", still)
+            $(this).attr("state", "still")
+          }
+      });
+
+      $(document).on("click", ".animal", displayAnimalInfo);
+
+      renderButtons();
+    </script>
+  </div>
+</body>
+
+</html>
